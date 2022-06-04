@@ -66,7 +66,16 @@ func Run(cmd *cobra.Command, args []string) error {
 	// Set to default 443 if none specified.
 	// Required by TLS Dial
 	host := u.Host
-	if !strings.Contains(u.Host, ":") {
+
+	// Handle if host is empty and Parse did not throw
+	// an error. Consult docs on url.Parse for the reasoning.
+	// https://pkg.go.dev/net/url#Parse
+	if host == "" {
+		host = args[0]
+	}
+
+	// Check for a port
+	if !strings.Contains(host, ":") {
 		host += ":443"
 	}
 	conn, err := tls.Dial("tcp", host, &tls.Config{})
